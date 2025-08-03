@@ -29,29 +29,54 @@
 
   <div id="notesList"></div>
 
-  <script>
-    let notes = [];
+ <script>
+  let notes = [];
 
-    function addNote() {
-      const input = document.getElementById('noteInput');
-      const text = input.value.trim();
-      if (text === '') return;
+  async function addNote() {
+    const input = document.getElementById('noteInput');
+    const text = input.value.trim();
+    if (text === '') return;
 
-      notes.push(text);
-      input.value = '';
-      displayNotes();
-    }
+    const note = { content: text, createdAt: new Date().toISOString() };
 
-    function displayNotes() {
-      const list = document.getElementById('notesList');
-      list.innerHTML = '';
-      notes.forEach((note, index) => {
-        const div = document.createElement('div');
-        div.className = 'note';
-        div.textContent = note;
-        list.appendChild(div);
+    notes.push(note.content);
+
+    await saveNoteToBackend(note);
+
+    input.value = '';
+    displayNotes();
+  }
+
+  function displayNotes() {
+    const list = document.getElementById('notesList');
+    list.innerHTML = '';
+    notes.forEach((note) => {
+      const div = document.createElement('div');
+      div.className = 'note';
+      div.textContent = note;
+      list.appendChild(div);
+    });
+  }
+
+  async function saveNoteToBackend(note) {
+    try {
+      const response = await fetch('/api/saveNote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(note)
       });
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Note saved:', result);
+      return result;
+    } catch (error) {
+      console.error('Error saving note:', error);
     }
-  </script>
+  }
+</script>
 </body>
 </html>
