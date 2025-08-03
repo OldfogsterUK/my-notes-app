@@ -21,3 +21,4 @@ jobs:
           app_location: "/frontend"
           api_location: "/api"
           output_location: ""
+          skip_deploy_on_missing_secrets: true
